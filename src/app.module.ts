@@ -11,6 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { LoggerMiddleware } from './common/logger.middleware';
 import { UserController } from './user/user.controller';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { UserController } from './user/user.controller';
     ProductModule,
     JwtModule,
     TokenModule,
-    ImagesModule,],
+    ImagesModule,
+    ReviewModule,],
   controllers: [AppController],
   providers: [AppService],
 })

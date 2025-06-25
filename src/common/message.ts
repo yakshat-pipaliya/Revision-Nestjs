@@ -24,7 +24,7 @@ export const USER_MESSAGES = {
   USERPASSWORDREGEX_DESCRIPTION: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
 };
 export const PRODUCT_MESSAGES = {
-  PRODUCTNAME_EXAMPLE: 'iPhone 15',
+  PRODUCTNAME_EXAMPLE: 'iPhone 16',
   PRODUCTNAME_DESCRIPTION: 'Name of the product',
   PRODUCTCATEGORY_EXAMPLE: 'Electronics',
   PRODUCTCATEGORY_DESCRIPTION: 'Category of the product',
@@ -37,10 +37,11 @@ export const PRODUCT_MESSAGES = {
   PRODUCTLIMIT_EXAMPLE: 3,
   PRODUCTLIMIT_DESCRIPTION: 'Data per page: (starts from 3, with a maximum limit of 100)',
   PRODUCTSORTBY_EXAMPLE: 'productName',
-  PRODUCTSORTBY_DESCRIPTION: 'Field to sort by (e.g., productName, category, brandName)',
+  PRODUCTSORTBY_DESCRIPTION: 'Field to sort by (e.g., productName, category, brandName, rating)',
   PRODUCTSORTORDER_EXAMPLE: 'asc',
   PRODUCTSORTORDER_DESCRIPTION: 'Sort order (e.g., asc or desc)',
   PRODUCT_NOTMATCHING: 'No matching data found',
-  PRODUCT_NOT_FOUND: (id: string) => `No product found with ID: ${id}`
+  PRODUCT_NOT_FOUND: (id: string) => `No product found with ID: ${id}`,
+  PRODUCT_NOT_MATCH: 'No matching data found'
 };
 

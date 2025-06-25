@@ -22,48 +22,78 @@ export class ProductService {
     return this.productModel.find().exec();
   }
 
-  async findAllBySorting(paginationQuery: PaginationQueryDto) {
-    const { limit, page, sortBy, sortOrder, productName } = paginationQuery
-
-    const skip = (page - 1) * limit;
-    const sort = {};
-    if (sortBy) {
-      sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
-    }
+  async findAllBySorting(paginationDto: PaginationQueryDto) {
+    const { limit, page, sortBy, sortOrder, productName } = paginationDto;
+    const offset = (page - 1) * limit;
 
     const filter: any = {};
     if (productName) {
       filter.productName = { $regex: productName, $options: 'i' };
     }
 
+    const sortStage: any = {};
+    if (sortBy) {
+      const sortField = sortBy === 'rating' ? 'avgRating' : sortBy;
+      sortStage[sortField] = sortOrder === 'asc' ? 1 : -1;
+    } else {
+      sortStage['avgRating'] = -1;
+    }
+
     const [data, total] = await Promise.all([
-      this.productModel
-        .find(filter)
-        .skip(skip)
-        .limit(limit)
-        .collation({ locale: 'en', strength: 4 })
-        .sort(sort)
-        .exec(),
+      this.productModel.aggregate([
+        { $match: filter },
+        {
+          $lookup: {
+            from: 'reviews',
+            localField: '_id',
+            foreignField: 'productId',
+            as: 'reviews',
+          },
+        },
+        {
+          $addFields: {
+            avgRating: { $round: [{ $avg: '$reviews.rating' }, 2] },
+            totalRatings: { $size: '$reviews' },
+            highestRating: {
+              $max: '$reviews.rating',
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            productName: 1,
+            category: 1,
+            brandName: 1,
+            description: 1,
+            avgRating: { $ifNull: ['$avgRating', 0] },
+            totalRatings: { $ifNull: ['$totalRatings', 0] },
+            highestRating: { $ifNull: ['$highestRating', 0] },
+          },
+        },
+        { $sort: sortStage },
+        { $skip: offset },
+        { $limit: Number(limit) },
+      ]),
       this.productModel.countDocuments(filter),
     ]);
+
     if (data.length === 0) {
-      throw new NotFoundException(PRODUCT_MESSAGES.PRODUCT_NOTMATCHING);
+      throw new NotFoundException(PRODUCT_MESSAGES.PRODUCT_NOT_MATCH);
     }
-    const totalPages = Math.ceil(total / limit);
-    const currentPage = page;
-    const previousPage = page > 1 ? page - 1 : null;
-    const nextPage = page < totalPages ? page + 1 : null;
 
     return {
       data,
-      total,
-      page,
-      limit,
-      totalPages,
-      previousPage,
-      currentPage,
-      nextPage
-    }
+      meta: {
+        totalData: total,
+        currentDataView: data.length,
+        dataPerPageLimit: limit,
+        totalPages: Math.ceil(total / limit),
+        prevPage: page > 1 ? page - 1 : null,
+        currentPage: page,
+        nextPage: page < Math.ceil(total / limit) ? page + 1 : null,
+      },
+    };
   }
 
   async findOne(id: string): Promise<Product> {

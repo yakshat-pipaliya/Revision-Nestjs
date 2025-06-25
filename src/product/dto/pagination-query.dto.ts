@@ -19,7 +19,7 @@ export class PaginationQueryDto {
 
     @ApiProperty({ example: PRODUCT_MESSAGES.PRODUCTSORTBY_EXAMPLE, description: PRODUCT_MESSAGES.PRODUCTSORTBY_DESCRIPTION })
     @IsString()
-    @IsIn(['productName', 'category', 'brandName'], { message: 'Invalid sortBy field' })
+    @IsIn(['productName', 'category', 'brandName', 'rating'], { message: 'Invalid sortBy field' })
     sortBy: string;
 
     @ApiProperty({ example: PRODUCT_MESSAGES.PRODUCTSORTORDER_EXAMPLE, description: PRODUCT_MESSAGES.PRODUCTSORTORDER_DESCRIPTION, required: false })
